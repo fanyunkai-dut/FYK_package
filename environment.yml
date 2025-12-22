@@ -1,4 +1,4 @@
-name: db-base
+name: fyk_project
 channels:
   - conda-forge
   - https://conda.anaconda.org/conda-forge/

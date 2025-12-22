@@ -1,0 +1,4 @@
+data:
+  path: "/home/fanyunkai/FYK_data/original water quality/"
+  files: []
+  variables: ["总氮","总磷",]
