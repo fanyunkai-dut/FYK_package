@@ -1,58 +1,8 @@
-# data_utils.py
 import os
 import pandas as pd
 import numpy as np
-"""
-    处理数据，补充缺失的时间点,从2020/11/09 00:00:00到2025/09/30 20:00:00,按4小时间隔补全时间点
 
-    Parameters
-    ----------
-    input_csv : str
-        输入的 CSV 文件路径
-    start_time : str
-        处理数据的开始时间
-    end_time : str
-        处理数据的结束时间
 
-    Returns
-    -------
-    pd.DataFrame
-"""
-def complete_data(input_csv, start_time="2020/11/09 00:00:00", end_time="2025/09/30 20:00:00"):
-    # 读取原始CSV数据
-    df = pd.read_csv(input_csv)
-
-    # 确保“监测时间”列是 datetime 格式
-    df['监测时间'] = pd.to_datetime(df['监测时间'], format='%Y-%m-%d %H:%M:%S')
-
-    # 筛选出从2020/11/09 00:00:00开始的数据
-    df = df[df['监测时间'] >= pd.to_datetime(start_time)]
-
-    # 创建一个从开始时间到结束时间，按4小时间隔的时间序列
-    time_range = pd.date_range(start=start_time, end=end_time, freq='4H')
-
-    # 设置监测时间为索引
-    df.set_index('监测时间', inplace=True)
-
-    # 创建一个完整的时间索引，并与原始数据合并
-    full_df = pd.DataFrame(index=time_range)
-
-    # 合并数据，原始数据会填充到对应时间点上，缺失的时间点会填充NaN
-    merged_df = full_df.join(df)
-
-    return merged_df
-    
-    """
-    清洗 CSV 数据：
-    1) 统计原始空白(NaN)数量
-    2) 把“非正值”(<=0)全部置为 NaN(并统计非正值数量:包含0和负)
-    3) 滑动窗口清洗异常高值： >= mean * threshold_high -> NaN(统计)
-    4) 滑动窗口清洗异常低值： <= mean * threshold_low  -> NaN(统计)
-       - mean 仅用窗口内非空值
-       - 边界不足时自动用可用的前/后数据
-       - 窗口内有效值少于 min_valid_neighbors 时不做异常判定(保留原值)
-    5) 输出统计：原来的空白值、非正值、异常高值、异常低值、正常值
-    """
 def clean_data(
     csv_file_path,
     column_name,
@@ -63,6 +13,17 @@ def clean_data(
     output_csv_path=None,
     encoding=None,  # 需要时可传 "utf-8-sig"/"gbk"
 ):
+    """
+    清洗 CSV 数据：
+    1) 统计原始空白(NaN)数量
+    2) 把“非正值”(<=0)全部置为 NaN（并统计非正值数量：包含0和负）
+    3) 滑动窗口清洗异常高值： >= mean * threshold_high -> NaN（统计）
+    4) 滑动窗口清洗异常低值： <= mean * threshold_low  -> NaN（统计）
+       - mean 仅用窗口内非空值
+       - 边界不足时自动用可用的前/后数据
+       - 窗口内有效值少于 min_valid_neighbors 时不做异常判定（保留原值）
+    5) 输出统计：原来的空白值、非正值、异常高值、异常低值、正常值
+    """
     df = pd.read_csv(csv_file_path, encoding=encoding) if encoding else pd.read_csv(csv_file_path)
 
     if isinstance(column_name, str):
@@ -140,8 +101,38 @@ def clean_data(
         stats["low_anomaly"] += low_cnt
         stats["normal"] += int(pd.Series(new_values).notna().sum())
 
+    print(
+        f"文件: {csv_file_path}\n"
+        f"原来的空白值有多少: {stats['orig_nan']}\n"
+        f"非正值(<=0)有多少: {stats['non_positive']}\n"
+        f"异常高值有多少: {stats['high_anomaly']}\n"
+        f"异常低值有多少: {stats['low_anomaly']}\n"
+        f"正常值有多少: {stats['normal']}"
+    )
+
     if output_csv_path is not None:
         os.makedirs(os.path.dirname(output_csv_path), exist_ok=True)
         df.to_csv(output_csv_path, index=False, encoding="utf-8-sig")
+        print(f"清洗后的 CSV 已保存到: {output_csv_path}")
 
     return df
+
+
+# ===== 你的调用 =====
+csv_file_path = "/home/fanyunkai/FYK_data/complete water quality/小钢桥.csv"
+column_name = ["总氮"]
+output_csv_path = "/home/fanyunkai/FYK_data/cleaned_data/小钢桥.csv"
+
+clean_data(
+    csv_file_path,
+    column_name,
+    window_size=100,
+    threshold_high=4,
+    threshold_low=0.25,
+    min_valid_neighbors=50,
+    output_csv_path=output_csv_path,
+)
+
+
+
+

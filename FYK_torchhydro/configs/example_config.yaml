@@ -1,4 +1,5 @@
-data:
-  path: "/home/fanyunkai/FYK_data/original water quality/"
+dataset:
+  input_path: "/home/fanyunkai/FYK_data/original_dataset/"
+  output_path: "/home/fanyunkai/FYK_data/processed_dataset/"
   files: []
-  target_variables: ["总氮","总磷",]
+  variables: ["总氮"]
