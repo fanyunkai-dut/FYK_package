@@ -8,8 +8,8 @@ def process_files_from_config(
     start_time="2020/11/09 00:00:00",
     end_time="2025/09/30 20:00:00",
     window_size=100,
-    threshold_high=4,
-    threshold_low=0.25,
+    threshold_high=2.5,
+    threshold_low=0.4,
     min_valid_neighbors=50,
     encoding=None,  # 需要时可填 "utf-8-sig"/"gbk"
 ):

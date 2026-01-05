@@ -57,8 +57,8 @@ def clean_data(
     csv_file_path,
     column_name,
     window_size=100,
-    threshold_high=4,
-    threshold_low=0.25,
+    threshold_high=2.5,
+    threshold_low=0.4,
     min_valid_neighbors=50,
     output_csv_path=None,
     encoding=None,  # 需要时可传 "utf-8-sig"/"gbk"

@@ -1,5 +1,5 @@
 dataset:
   input_path: "/home/fanyunkai/FYK_data/original_dataset/"
-  output_path: "/home/fanyunkai/FYK_data/processed_dataset/"
+  output_path: "/home/fanyunkai/FYK_data/processed_dataset2.5/"
   files: []
   variables: ["总氮"]
