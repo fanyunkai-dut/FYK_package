@@ -1,4 +1,4 @@
-#第五步，把原有的binary矩阵再mask20%的空值。
+#第五步，把原有的binary矩阵再mask20%的空值，以进行验证,叫做WQ_hanjiang_binary_dropped.npy。
 import numpy as np
 import yaml
 

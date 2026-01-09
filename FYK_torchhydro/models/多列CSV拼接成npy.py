@@ -1,4 +1,4 @@
-#第三步，把多个csv里的总氮列拼接成npy文件
+#第三步，把多个csv里的总氮列拼接成npy文件，叫做WQ_hanjiang.npy
 import os
 import numpy as np
 import pandas as pd

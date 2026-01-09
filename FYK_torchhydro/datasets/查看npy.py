@@ -1,13 +1,13 @@
 #把npy转换成csv以查看内容
 import numpy as np
 ###npy转换成csv
-data = np.load("/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_binary_dropped.npy")
+data = np.load("/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_true_train.npy")
 
 np.savetxt(
-    "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_binary_dropped.csv",
+    "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_true_train.csv",
     data,
     delimiter=",",
     fmt="%.6f"
 )
 
-print("✅ 已保存为 Metr_ADJ.csv")
+print("✅ 已保存")
