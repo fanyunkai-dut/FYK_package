@@ -1,4 +1,4 @@
-#第六步，制作训练和验证集，叫做。
+#第六步，制作训练和验证集，用原数据和掩膜相乘，再0.8/0.2划分，叫做WQ_hanjiang_train.npy；WQ_hanjiang_test.npy。
 import numpy as np
 import yaml
 import os
