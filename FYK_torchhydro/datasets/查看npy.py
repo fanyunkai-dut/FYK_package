@@ -1,10 +1,10 @@
 #把npy转换成csv以查看内容
 import numpy as np
 ###npy转换成csv
-data = np.load("/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang.npy")
+data = np.load("/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_binary_dropped.npy")
 
 np.savetxt(
-    "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang.csv",
+    "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_binary_dropped.csv",
     data,
     delimiter=",",
     fmt="%.6f"

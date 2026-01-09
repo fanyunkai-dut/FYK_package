@@ -3,3 +3,9 @@ dataset:
   output_path: "/home/fanyunkai/FYK_data/processed_dataset2.5/"
   files: []
   variables: ["总氮"]
+
+WQ_data:
+  input_file1: "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang.npy"
+  input_file2: "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_binary.npy"
+  dropout_rate: 0.2  
+  random_seed: 77  

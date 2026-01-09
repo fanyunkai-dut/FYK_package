@@ -1,5 +1,4 @@
-# process_files.py
-
+#由于监测中心的数据直接不显示未测批次，导致时间序列不完整，需要用NaN补全时间点，此为单站点补全代码
 import os
 import yaml
 from data_utils import complete_data
