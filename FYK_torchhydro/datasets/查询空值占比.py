@@ -1,3 +1,4 @@
+#查询某个站空值占比
 import pandas as pd
 
 def count_valid_and_nan(csv_file_path, column_name="总氮", encoding=None):
@@ -21,5 +22,5 @@ def count_valid_and_nan(csv_file_path, column_name="总氮", encoding=None):
 
 
 # 示例：改成你的路径
-csv_file_path = "/home/fanyunkai/FYK_data/processed_dataset4/观音寺.csv"
+csv_file_path = "/home/fanyunkai/FYK_data/processed_dataset2.5/羊尾.csv"
 count_valid_and_nan(csv_file_path, column_name="总氮", encoding="utf-8-sig")  # 不确定编码就先试试utf-8-sig

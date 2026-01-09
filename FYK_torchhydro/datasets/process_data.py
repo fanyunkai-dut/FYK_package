@@ -1,3 +1,4 @@
+#第二步，调用模块，补充时间和清洗数据
 import os
 import yaml
 from data_utils import complete_data, clean_data
@@ -6,7 +7,7 @@ from data_utils import complete_data, clean_data
 def process_files_from_config(
     config_path,
     start_time="2020/11/09 00:00:00",
-    end_time="2025/09/30 20:00:00",
+    end_time="2025/12/31 20:00:00",
     window_size=100,
     threshold_high=2.5,
     threshold_low=0.4,

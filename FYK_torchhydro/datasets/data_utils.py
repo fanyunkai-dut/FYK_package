@@ -1,4 +1,4 @@
-# data_utils.py
+# 第一步，两个模块，分别是补全时间和清洗数据
 import os
 import pandas as pd
 import numpy as np
@@ -18,7 +18,7 @@ import numpy as np
     -------
     pd.DataFrame
 """
-def complete_data(input_csv, start_time="2020/11/09 00:00:00", end_time="2025/09/30 20:00:00"):
+def complete_data(input_csv, start_time="2020/11/09 00:00:00", end_time="2025/12/31 20:00:00"):
     # 读取原始CSV数据
     df = pd.read_csv(input_csv)
 
