@@ -48,14 +48,13 @@ class LSTMNNMF(Model):
         return self.X_predicted
     
     def create_lstm_inputs(self):
-        lstm_inputs = tf.gather(self.X_tf, 0 + self.max_lag - self.time_lags, axis=0)
-        lstm_inputs = tf.expand_dims(lstm_inputs, axis=0)
         data_len = self.X_tf.shape[0] - self.max_lag
-        for t in tf.range(1, data_len):
-            ipt = tf.gather(self.X_tf, t + self.max_lag - self.time_lags, axis=0)
-            ipt_exp = tf.expand_dims(ipt, axis=0)
-            e = tf.concat([lstm_inputs, ipt_exp], 0)
-        return e
+        base_indices = tf.range(self.max_lag, self.max_lag + data_len)  
+        indices = base_indices[:, tf.newaxis] - self.time_lags[tf.newaxis, :]
+        flat_indices = tf.reshape(indices, [-1]) 
+        gathered = tf.gather(self.X_tf, flat_indices, axis=0)  
+        lstm_inputs = tf.reshape(gathered, [data_len, len(self.time_lags), -1])
+        return lstm_inputs
     
     def loss_cal(self):
         self.recovered_tensor = self.call()

@@ -12,8 +12,8 @@ def npy_to_csv(npy_file_path, csv_file_path):
     print(f"✅ NPY 文件已转换并保存为 {csv_file_path}")
 
 # 调用示例
-npy_file_path = "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_true_train.npy"
-csv_file_path = "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang_true_train.csv"
+npy_file_path = "/home/fanyunkai/FYK_data/WQ_hanjiang_results/reconstructed_matrix.npy"
+csv_file_path = "/home/fanyunkai/FYK_data/WQ_hanjiang_results/reconstructed_matrix.csv"
 
 npy_to_csv(npy_file_path, csv_file_path)
 
