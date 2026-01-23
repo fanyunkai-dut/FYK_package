@@ -13,7 +13,7 @@ class LSTMNNMF(Model):
     3. 原始缺失值（最终填补目标）
     """
     
-    def __init__(self, training_ground_truth, train_mask, val_mask, 
+    def __init__(self, training_set, training_ground_truth, train_mask, val_mask, 
                  A, rank, time_lags, lambda_w=100, lambda_x=100, eta=0.02, 
                  latent_normal_init_params={'mean': 0.0, 'stddev': 0.1}):
         super(LSTMNNMF, self).__init__()
@@ -252,35 +252,12 @@ class LSTMNNMF(Model):
             return tf.zeros([batch_size, self.rank], dtype=tf.float32)
     
     def metrics_cal(self):
-        """
-        计算验证指标（仅在人为缺失位置计算）
-        """
-        try:
-            self.recovered_tensor = self.call()
-            val_recovered_vec = tf.boolean_mask(self.recovered_tensor, self.val_pos_mask)
-            
-            # 检查是否有NaN
-            if tf.reduce_any(tf.math.is_nan(val_recovered_vec)):
-                print("警告: val_recovered_vec中包含NaN，使用替代值")
-                val_recovered_vec = tf.where(tf.math.is_nan(val_recovered_vec), 
-                                            tf.zeros_like(val_recovered_vec), 
-                                            val_recovered_vec)
-            
-            # 计算MAPE（避免除以0）
-            epsilon = 1e-8
-            mape = 100 * tf.reduce_mean(
-                tf.abs((self.val_ground_truth_vec - val_recovered_vec) / 
-                       (tf.abs(self.val_ground_truth_vec) + epsilon))
-            )
-            
-            # 计算RMSE
-            rmse = tf.sqrt(tf.reduce_mean(tf.square(self.val_ground_truth_vec - val_recovered_vec)))
-            
-            return mape, rmse
-            
-        except Exception as e:
-            print(f"指标计算时出错: {e}")
-            return tf.constant(0.0, dtype=tf.float32), tf.constant(0.0, dtype=tf.float32)
+        self.recovered_tensor = self.call()
+        val_recovered_vec = tf.boolean_mask(self.recovered_tensor, self.val_pos_mask)  
+        mape = tf.keras.losses.MAPE(self.val_ground_truth_vec, val_recovered_vec)
+        rmse = tf.sqrt(tf.keras.losses.MSE(self.val_ground_truth_vec, val_recovered_vec))
+        return mape, rmse
+    
     
     def get_reconstructed_matrix(self):
         """获取重建的完整矩阵"""
