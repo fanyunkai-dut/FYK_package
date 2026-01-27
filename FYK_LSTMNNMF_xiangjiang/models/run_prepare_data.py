@@ -11,8 +11,8 @@ from prepare_data import prepare_data, save_results, load_and_inspect_results
 
 def main():
     # 设置路径
-    data_path = '/home/fanyunkai/FYK_data/WQ_hanjiang/WQ_hanjiang.npy'
-    output_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang/'
+    data_path = '/home/fanyunkai/FYK_data/WQ_xiangjiang/WQ_xiangjiang.npy'
+    output_dir = '/home/fanyunkai/FYK_data/WQ_xiangjiang/'
     
     # 设置随机种子以确保可重复性
     np.random.seed(42)

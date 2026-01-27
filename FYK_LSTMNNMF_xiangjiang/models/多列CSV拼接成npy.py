@@ -14,7 +14,8 @@ def concatenate_columns_to_npy(config_path):
 
     # 获取文件夹路径和文件名列表
     data_path = config["dataset"]["output_path"]
-    files = ["梁西渡.csv", "南柳渡.csv", "黄金峡.csv", "小钢桥.csv", "老君关.csv", "羊尾.csv"]
+    data_path1 = config["dataset"]["output_path1"]
+    files = ["归阳镇.csv", "城北水厂.csv", "熬洲.csv", "霞湾.csv", "昭山.csv", "桔子洲.csv", "樟树港.csv"]
 
     # 存储拼接的总氮数据
     concatenated_data = []
@@ -51,7 +52,7 @@ def concatenate_columns_to_npy(config_path):
     concatenated_data = np.array(concatenated_data)
 
     # 输出的 .npy 文件路径
-    output_npy_path = os.path.join(data_path, "WQ_hanjiang.npy")
+    output_npy_path = os.path.join(data_path1, "WQ_xiangjiang.npy")
 
     # 保存为 .npy 文件
     np.save(output_npy_path, concatenated_data)
@@ -59,6 +60,6 @@ def concatenate_columns_to_npy(config_path):
     print(f"[完成] 数据已保存到 {output_npy_path}")
 
 # 调用示例
-config_path = '/home/fanyunkai/FYK_package/FYK_torchhydro/configs/example_config.yaml'  # 配置文件路径
+config_path = '/home/fanyunkai/FYK_package/FYK_LSTMNNMF_xiangjiang/configs/example_config.yaml'  # 配置文件路径
 concatenate_columns_to_npy(config_path)
 

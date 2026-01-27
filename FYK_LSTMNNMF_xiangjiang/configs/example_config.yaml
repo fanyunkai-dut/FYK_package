@@ -1,13 +1,14 @@
 dataset:
   input_path: "/home/fanyunkai/FYK_data/original_dataset/"
   output_path: "/home/fanyunkai/FYK_data/processed_dataset2.5/"
+  output_path1: "/home/fanyunkai/FYK_data/WQ_xiangjiang/"
   files: []
   variables: ["总氮"]
 
 WQ_data:
-  input_file1: "/home/fanyunkai/FYK_data/WQ_hanjiang/WQ_hanjiang.npy"
-  input_file2: "/home/fanyunkai/FYK_data/WQ_hanjiang/WQ_hanjiang_binary.npy"
-  input_file3: "/home/fanyunkai/FYK_data/WQ_hanjiang/WQ_hanjiang_binary_dropped.npy"
+  input_file1: "/home/fanyunkai/FYK_data/WQ_xiangjiang/WQ_xiangjiang.npy"
+  input_file2: "/home/fanyunkai/FYK_data/WQ_xiangjiang/WQ_xiangjiang_binary.npy"
+  input_file3: "/home/fanyunkai/FYK_data/WQ_xiangjiang/WQ_xiangjiang_binary_dropped.npy"
   dropout_rate: 0.2  
   random_seed: 77
   train_ratio: 0.8

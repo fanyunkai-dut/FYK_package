@@ -32,5 +32,5 @@ def generate_binary_npy(config_path):
     print(f"[完成] 二进制 .npy 文件已保存到 {output_npy_path}")
 
 # 调用示例
-config_path = '/home/fanyunkai/FYK_package/FYK_torchhydro/configs/example_config.yaml'  # 配置文件路径
+config_path = '/home/fanyunkai/FYK_package/FYK_LSTMNNMF_xiangjiang/configs/example_config.yaml'  # 配置文件路径
 generate_binary_npy(config_path)

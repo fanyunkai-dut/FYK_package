@@ -1,12 +1,12 @@
 # =========================
 # ✅ 只需要改这里的路径/参数
 # =========================
-WQ_PATH   = "/home/fanyunkai/FYK_data/processed_dataset2.5/WQ_hanjiang.npy"
-REC_PATH  = "/home/fanyunkai/FYK_data/WQ_hanjiang_results/reconstructed_matrix.npy"
-TRAIN_PATH= "/home/fanyunkai/FYK_data/WQ_hanjiang/train_mask.npy"
-VAL_PATH  = "/home/fanyunkai/FYK_data/WQ_hanjiang/val_mask.npy"
+WQ_PATH   = "/home/fanyunkai/FYK_data/WQ_xiangjiang/WQ_xiangjiang.npy"
+REC_PATH  = "/home/fanyunkai/FYK_data/WQ_xiangjiang_results/reconstructed_matrix.npy"
+TRAIN_PATH= "/home/fanyunkai/FYK_data/WQ_xiangjiang/train_mask.npy"
+VAL_PATH  = "/home/fanyunkai/FYK_data/WQ_xiangjiang/val_mask.npy"
 
-OUT_DIR   = "/home/fanyunkai/FYK_data/WQ_hanjiang_results/plots"   # 输出图片文件夹
+OUT_DIR   = "/home/fanyunkai/FYK_data/WQ_xiangjiang_results/plots"   # 输出图片文件夹
 STATION_NAMES = None  # 例如 ["S1","S2","S3","S4","S5","S6"]；不填则用 site_0...site_n
 INVERT_MASK = False   # mask 语义若相反（True表示缺失/不可用）就设 True
 

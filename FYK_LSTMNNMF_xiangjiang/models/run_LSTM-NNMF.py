@@ -145,8 +145,8 @@ def main():
     
     try:
         # ==================== 参数设置 ====================
-        data_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang/'
-        save_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang_results/'
+        data_dir = '/home/fanyunkai/FYK_data/WQ_xiangjiang/'
+        save_dir = '/home/fanyunkai/FYK_data/WQ_xiangjiang_results/'
         os.makedirs(save_dir, exist_ok=True)
         
         # 模型参数 - 使用原交通数据的参数
