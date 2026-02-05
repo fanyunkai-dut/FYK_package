@@ -61,44 +61,31 @@ def split_data_by_time(sparse_mat, dense_mat_filled, train_mask, val_mask, test_
             test_set, test_ground_truth)
 
 def train_model(model, optimizer, epochs=500, log_interval=50):
-    """
-    训练模型
-    """
-    
     train_loss_history = []
     train_rmse_history = []
-    
+
     start_time = time.time()
-    
+
     for epoch in range(epochs):
-            with tf.GradientTape() as tape:
-                loss, train_residual_error, W_F_norm, X_F_norm, X_norm, W_norm = model.loss_cal()
-            
-            gradients = tape.gradient(loss, model.trainable_variables)
-            
-            # 应用梯度
-            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-            
-            # 计算训练RMSE
-            train_rmse = tf.sqrt(train_residual_error / tf.cast(tf.size(model.train_ground_truth_vec), tf.float32))
-            
-            # 计算验证指标
-            val_mape, val_rmse = model.metrics_cal()
-            
-            # 记录历史
-            train_loss_history.append(loss.numpy())
-            train_rmse_history.append(train_rmse.numpy())
-            
-            # 打印日志
-            if (epoch + 1) % log_interval == 0 or epoch == 0:
-                epoch_time = time.time() - start_time
-                print(f"Epoch {epoch+1}/{epochs}:")
-                print(f"  时间: {epoch_time:.2f}s, 总损失: {loss.numpy():.2f}")
-                print(f"  训练RMSE: {train_rmse.numpy():.4f}, 验证MAPE: {val_mape.numpy():.4f}, 验证RMSE: {val_rmse.numpy():.4f}")
-                print(f"  损失分量 - 重建误差: {train_residual_error.numpy():.2f}, "
-                      f"W正则化: {W_F_norm.numpy():.2f}, X正则化: {X_F_norm.numpy():.2f}")
-                start_time = time.time()
-    
+        with tf.GradientTape() as tape:
+            loss, train_residual_error = model.loss_cal()
+
+        gradients = tape.gradient(loss, model.trainable_variables)
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+
+        train_rmse = tf.sqrt(train_residual_error / tf.cast(tf.size(model.train_ground_truth_vec), tf.float32))
+        val_mape, val_rmse = model.metrics_cal()
+
+        train_loss_history.append(loss.numpy())
+        train_rmse_history.append(train_rmse.numpy())
+
+        if (epoch + 1) % log_interval == 0 or epoch == 0:
+            epoch_time = time.time() - start_time
+            print(f"Epoch {epoch+1}/{epochs}:")
+            print(f"  时间: {epoch_time:.2f}s, loss(重建误差): {loss.numpy():.2f}")
+            print(f"  训练RMSE: {train_rmse.numpy():.4f}, 验证MAPE: {val_mape.numpy():.4f}, 验证RMSE: {val_rmse.numpy():.4f}")
+            start_time = time.time()
+
     return train_loss_history, train_rmse_history
 
 def save_results(model, save_dir):
@@ -146,18 +133,13 @@ def main():
     try:
         # ==================== 参数设置 ====================
         data_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang/'
-        save_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang_results/'
+        save_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang_results/result5/'
         os.makedirs(save_dir, exist_ok=True)
         
         # 模型参数 - 使用原交通数据的参数
-        rank = 6
-        time_lags = np.array(range(1, 30))
+        rank = 60
         test_len = 2055  # 10274*0.2
         
-        # 正则化参数 - 使用原交通数据的参数
-        lambda_w = 100
-        lambda_x = 10
-        eta = 0.1
         
         # 训练参数 - 使用原交通数据的参数
         epochs = 400
@@ -182,12 +164,6 @@ def main():
         # 重要：直接使用原始数据，不进行标准化
         # sparse_mat 已经是正确的（验证位置为0）
         
-        # ==================== 加载邻接矩阵 ====================
-        print("\n3. 加载邻接矩阵...")
-        adj_path = os.path.join(data_dir, 'adj.npy')
-        A = np.load(adj_path).astype(np.float32)
-        print(f"邻接矩阵形状: {A.shape}")
-        
         # ==================== 按时间分割数据 ====================
         (training_set, training_ground_truth, train_mask_train, val_mask_train,
          test_set, test_ground_truth) = split_data_by_time(
@@ -197,7 +173,7 @@ def main():
         # ==================== 导入并创建模型 ====================
         print("\n4. 创建LSTMNNMF模型...")
         try:
-            from LSTMNNMF import LSTMNNMF
+            from FYK_NNMF_hanjiang.models.NNMF import LSTMNNMF
         except ImportError as e:
             print(f"导入模型类时出错: {e}")
             return
@@ -207,12 +183,7 @@ def main():
             training_ground_truth=training_ground_truth,
             train_mask=train_mask_train,
             val_mask=val_mask_train,
-            A=A,
             rank=rank,
-            time_lags=time_lags,
-            lambda_w=lambda_w,
-            lambda_x=lambda_x,
-            eta=eta,
             latent_normal_init_params=latent_normal_init_params
         )
         
@@ -229,8 +200,8 @@ def main():
         reconstructed = model.call()
         print(f"初始重建矩阵形状: {reconstructed.shape}")
         print(f"初始重建矩阵值范围: [{np.min(reconstructed.numpy()):.4f}, {np.max(reconstructed.numpy()):.4f}]")
-        
-        loss, train_residual_error, W_F_norm, X_F_norm, X_norm, W_norm = model.loss_cal()
+
+        loss, train_residual_error = model.loss_cal()
         print(f"初始损失: {loss.numpy():.2f}")
         print(f"初始重建误差: {train_residual_error.numpy():.2f}")
         

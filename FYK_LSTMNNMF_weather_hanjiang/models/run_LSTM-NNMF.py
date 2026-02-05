@@ -4,8 +4,8 @@ import time
 import os
 import sys
 
-# 禁用GPU，使用CPU（避免GPU相关问题）
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+### 使用GPU运行模型，设置方法 https://blog.csdn.net/chen565884393/article/details/127905428
+device = tf.device('cuda' if tf.config.list_physical_devices('GPU') else 'cpu')
 
 # 设置TensorFlow日志级别
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -24,7 +24,7 @@ def load_preprocessed_data(data_dir):
     返回:
         加载的所有数据
     """
-        # 加载所有预处理文件
+    # 加载所有预处理文件
     sparse_mat = np.load(os.path.join(data_dir, 'sparse_mat.npy'))
     dense_mat_filled = np.load(os.path.join(data_dir, 'dense_mat_filled.npy'))
     train_mask = np.load(os.path.join(data_dir, 'train_mask.npy'))
@@ -56,7 +56,6 @@ def split_data_by_time(sparse_mat, dense_mat_filled, train_mask, val_mask, test_
     train_mask_train = train_mask[:, :train_len]
     val_mask_train = val_mask[:, :train_len]
 
-    
     return (training_set, training_ground_truth, train_mask_train, val_mask_train,
             test_set, test_ground_truth)
 
@@ -64,40 +63,39 @@ def train_model(model, optimizer, epochs=500, log_interval=50):
     """
     训练模型
     """
-    
     train_loss_history = []
     train_rmse_history = []
     
     start_time = time.time()
     
     for epoch in range(epochs):
-            with tf.GradientTape() as tape:
-                loss, train_residual_error, W_F_norm, X_F_norm, X_norm, W_norm = model.loss_cal()
-            
-            gradients = tape.gradient(loss, model.trainable_variables)
-            
-            # 应用梯度
-            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-            
-            # 计算训练RMSE
-            train_rmse = tf.sqrt(train_residual_error / tf.cast(tf.size(model.train_ground_truth_vec), tf.float32))
-            
-            # 计算验证指标
-            val_mape, val_rmse = model.metrics_cal()
-            
-            # 记录历史
-            train_loss_history.append(loss.numpy())
-            train_rmse_history.append(train_rmse.numpy())
-            
-            # 打印日志
-            if (epoch + 1) % log_interval == 0 or epoch == 0:
-                epoch_time = time.time() - start_time
-                print(f"Epoch {epoch+1}/{epochs}:")
-                print(f"  时间: {epoch_time:.2f}s, 总损失: {loss.numpy():.2f}")
-                print(f"  训练RMSE: {train_rmse.numpy():.4f}, 验证MAPE: {val_mape.numpy():.4f}, 验证RMSE: {val_rmse.numpy():.4f}")
-                print(f"  损失分量 - 重建误差: {train_residual_error.numpy():.2f}, "
-                      f"W正则化: {W_F_norm.numpy():.2f}, X正则化: {X_F_norm.numpy():.2f}")
-                start_time = time.time()
+        with tf.GradientTape() as tape:
+            loss, train_residual_error, W_F_norm, X_F_norm, X_norm, W_norm = model.loss_cal()
+        
+        gradients = tape.gradient(loss, model.trainable_variables)
+        
+        # 应用梯度
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        
+        # 计算训练RMSE
+        train_rmse = tf.sqrt(train_residual_error / tf.cast(tf.size(model.train_ground_truth_vec), tf.float32))
+        
+        # 计算验证指标
+        val_mape, val_rmse = model.metrics_cal()
+        
+        # 记录历史
+        train_loss_history.append(loss.numpy())
+        train_rmse_history.append(train_rmse.numpy())
+        
+        # 打印日志
+        if (epoch + 1) % log_interval == 0 or epoch == 0:
+            epoch_time = time.time() - start_time
+            print(f"Epoch {epoch+1}/{epochs}:")
+            print(f"  时间: {epoch_time:.2f}s, 总损失: {loss.numpy():.2f}")
+            print(f"  训练RMSE: {train_rmse.numpy():.4f}, 验证MAPE: {val_mape.numpy():.4f}, 验证RMSE: {val_rmse.numpy():.4f}")
+            print(f"  损失分量 - 重建误差: {train_residual_error.numpy():.2f}, "
+                  f"W正则化: {W_F_norm.numpy():.2f}, X正则化: {X_F_norm.numpy():.2f}")
+            start_time = time.time()
     
     return train_loss_history, train_rmse_history
 
@@ -146,22 +144,22 @@ def main():
     try:
         # ==================== 参数设置 ====================
         data_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang/'
-        save_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang_results/'
+        save_dir = '/home/fanyunkai/FYK_data/WQ_hanjiang_weatherresults/'
         os.makedirs(save_dir, exist_ok=True)
         
         # 模型参数 - 使用原交通数据的参数
-        rank = 6
-        time_lags = np.array(range(1, 30))
+        rank = 7
+        time_lags = np.array(range(1, 180))
         test_len = 2055  # 10274*0.2
         
         # 正则化参数 - 使用原交通数据的参数
         lambda_w = 100
-        lambda_x = 10
-        eta = 0.1
+        lambda_x = 100
+        eta = 1
         
         # 训练参数 - 使用原交通数据的参数
-        epochs = 400
-        learning_rate = 0.001
+        epochs = 1000
+        learning_rate = 0.015
         log_interval = 50
         
         # 初始化参数 - 使用原交通数据的参数
@@ -175,15 +173,19 @@ def main():
         if sparse_mat is None:
             return
         
+        # ==================== 加载气象数据 ====================
+        print("\n2. 加载气象数据...")
+        weather_data = np.load('/home/fanyunkai/FYK_data/QX_hanjiang/weather_data.npy')  # 形状为 (11274, 7)
+        
         # ==================== 重要：不进行标准化 ====================
-        print("\n2. 使用原始数据（不进行标准化）")
+        print("\n3. 使用原始数据（不进行标准化）")
         print("注意：保持原始数据范围，与交通数据代码保持一致")
         
         # 重要：直接使用原始数据，不进行标准化
         # sparse_mat 已经是正确的（验证位置为0）
         
         # ==================== 加载邻接矩阵 ====================
-        print("\n3. 加载邻接矩阵...")
+        print("\n4. 加载邻接矩阵...")
         adj_path = os.path.join(data_dir, 'adj.npy')
         A = np.load(adj_path).astype(np.float32)
         print(f"邻接矩阵形状: {A.shape}")
@@ -195,14 +197,15 @@ def main():
          )
         
         # ==================== 导入并创建模型 ====================
-        print("\n4. 创建LSTMNNMF模型...")
+        print("\n5. 创建LSTMNNMF模型...")
         try:
             from LSTMNNMF import LSTMNNMF
         except ImportError as e:
             print(f"导入模型类时出错: {e}")
             return
         
-        model = LSTMNNMF(
+        with tf.device('/GPU:0'):
+         model = LSTMNNMF(
             training_set=training_set,
             training_ground_truth=training_ground_truth,
             train_mask=train_mask_train,
@@ -210,6 +213,7 @@ def main():
             A=A,
             rank=rank,
             time_lags=time_lags,
+            weather_data=weather_data,  # 添加气象数据
             lambda_w=lambda_w,
             lambda_x=lambda_x,
             eta=eta,
@@ -221,11 +225,11 @@ def main():
         print(f"训练时间点数: {model.num_times}")
         
         # ==================== 创建优化器 ====================
-        print("\n5. 创建优化器...")
+        print("\n6. 创建优化器...")
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         
         # ==================== 初始测试 ====================
-        print("\n6. 初始测试...")
+        print("\n7. 初始测试...")
         reconstructed = model.call()
         print(f"初始重建矩阵形状: {reconstructed.shape}")
         print(f"初始重建矩阵值范围: [{np.min(reconstructed.numpy()):.4f}, {np.max(reconstructed.numpy()):.4f}]")

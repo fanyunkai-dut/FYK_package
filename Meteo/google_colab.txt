@@ -1,0 +1,62 @@
+from google.colab import drive
+drive.mount('/content/drive')
+import os
+import numpy as np
+import xarray as xr
+from glob import glob
+
+# 设置源文件夹和目标文件夹路径
+input_folder = "/content/drive/MyDrive/MSWX_V100/Past/RelHum/3hourly/"
+output_folder = "/content/drive/MyDrive/hanjiang_rh/"
+
+# 设定起始日期和结束日期
+start_date = 2020314  # 2020年11月9日
+end_date = 2025365  # 2025年365天
+
+# 小时列表
+hours = ['00', '03', '06', '09', '12', '15', '18', '21']
+
+# 设置经纬度裁剪范围
+lon_min, lon_max = 106.05, 114.25
+lat_min, lat_max = 30.15, 34.25
+
+# 逐个日期进行处理
+for date in range(start_date, end_date + 1):  # 从 start_date 到 end_date
+    for hour in hours:  # 对每个小时（.00, .03, ..., .21）处理
+        # 拼接文件名，形如 2020314.00.nc
+        file_name = f"{date}.{hour}.nc"
+
+        # 使用 glob 查找符合模式的文件
+        file_path_pattern = os.path.join(input_folder, file_name)
+
+        # 检查文件是否存在
+        if glob(file_path_pattern):  # 如果找到了文件
+            file_path = glob(file_path_pattern)[0]  # 获取第一个匹配的文件
+
+            # 打开.nc文件
+            ds = xr.open_dataset(file_path)
+
+            try:
+                # 获取经纬度范围的索引
+                lat_values = ds['lat'].values
+                lon_values = ds['lon'].values
+
+                lat_indices = np.where((lat_values >= lat_min) & (lat_values <= lat_max))[0]
+                lon_indices = np.where((lon_values >= lon_min) & (lon_values <= lon_max))[0]
+
+                # 使用 isel 进行裁剪
+                sub = ds['relative_rumidity'].isel(lat=lat_indices, lon=lon_indices)
+
+                # 构造输出文件的路径，给文件加上 'hanjiang_' 前缀
+                output_file = f"hanjiang_{file_name}"
+                output_path = os.path.join(output_folder, output_file)
+
+                # 输出裁剪后的数据到新文件
+                sub.to_netcdf(output_path)
+
+                print(f"处理完成：{file_name} -> {output_file}")
+
+            except Exception as e:
+                print(f"处理 {file_name} 时出错: {e}")
+
+print("所有文件处理完毕！")
